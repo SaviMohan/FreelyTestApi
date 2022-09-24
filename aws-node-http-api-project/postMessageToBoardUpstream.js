@@ -7,9 +7,9 @@ const sns = new AWS.SNS();
 module.exports.postMessageToBoardUpstream = async (event) => {
   console.log(event);
   console.log(event.body);
-  //console.log(Buffer.from(event.body, 'base64').toString())
+  
   const body = JSON.parse(event.body)
-  // const dynamoDb = new AWS.DynamoDB.DocumentClient()
+  
   const messageBoardName = body.messageBoardName;
   const message = body.message;
   if (!messageBoardName || !message) {
@@ -18,15 +18,6 @@ module.exports.postMessageToBoardUpstream = async (event) => {
         body: JSON.stringify({error: 'Request parameter(s) incorrectly specified. Make sure the message board name and the message to post on the board are correctly specified.'})
     }
   }
-//   const putParams = {
-//     TableName: process.env.DYNAMODB_USER_TABLE,
-//     Item: {
-//       userId: body.userId,
-//       name: body.name,
-//       email: body.email
-//     }
-//   }
-//   await dynamoDb.put(putParams).promise()
 
   const scanParams = {
     TableName: process.env.DYNAMODB_MESSAGE_BOARD_TABLE,
@@ -51,8 +42,7 @@ module.exports.postMessageToBoardUpstream = async (event) => {
       messageBoardId: messageBoard.messageBoardId,
       messageBoardName: messageBoard.messageBoardName,
       messages: messageBoard.messages + '\n' + message
-    }),
-    //TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:registerUserDownstream`,
+    }),    
     TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:postMessageToBoardDownstream`,
   };
 
@@ -60,15 +50,7 @@ module.exports.postMessageToBoardUpstream = async (event) => {
     statusCode: 200,
     body: JSON.stringify({ message: 'Successfully queued up message post to board request' }),
   };
-//   sns.publish(params, (error) => {
-//     if (error) {
-//       console.error(error);
-//       callback(null, );
-//     }
-    
-    
-//     callback(null, response);
-//   });
+
   try {
     const data = await sns.publish(params).promise();
     response.messageId = data.MessageId,

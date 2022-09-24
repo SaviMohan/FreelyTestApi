@@ -22,9 +22,5 @@ module.exports.createMessageBoardDownstream = async (event) => {
       }
       await dynamoDb.put(putParams).promise()
     }
-  }
-  
-  
- 
-  
+  }  
 }

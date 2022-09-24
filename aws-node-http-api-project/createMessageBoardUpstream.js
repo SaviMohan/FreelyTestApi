@@ -9,27 +9,16 @@ const sqs = new AWS.SQS({
 });
  
 module.exports.createMessageBoardUpstream = async (event) => {
-  console.log('Queue upstream: ' + event);  
-  //console.log(Buffer.from(event.body, 'base64').toString())
-  const body = JSON.parse(event.body)
-  // const dynamoDb = new AWS.DynamoDB.DocumentClient()
+  console.log('Queue upstream: ' + event);    
+  const body = JSON.parse(event.body)  
   const messageBoardName = body.messageBoardName;
-//   const email = body.email;
+
   if (!messageBoardName) {
     return {
         statusCode: 400,
         body: JSON.stringify({error: 'Request parameter(s) incorrectly specified. Make sure message board name is correctly specified.'})
     }
   }
-//   const putParams = {
-//     TableName: process.env.DYNAMODB_MESSAGE_BOARD_TABLE,
-//     Item: {
-//       userId: body.userId,
-//       name: body.name,
-//       email: body.email
-//     }
-//   }
-//   await dynamoDb.put(putParams).promise()
 
   const scanParams = {
     TableName: process.env.DYNAMODB_MESSAGE_BOARD_TABLE,
@@ -46,28 +35,11 @@ module.exports.createMessageBoardUpstream = async (event) => {
     }
   }
 
-
-//   const params = {
-//     Message: JSON.stringify({
-//         messageBoardName: messageBoardName      
-//     }),
-//     //TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:registerUserDownstream`,
-//     TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:createMessageBoardDownstream`,
-//   };
-
   let response = {
     statusCode: 200,
     body: JSON.stringify({ message: 'Successfully queued up create message board request' }),
   };
-//   sns.publish(params, (error) => {
-//     if (error) {
-//       console.error(error);
-//       callback(null, );
-//     }
-    
-    
-//     callback(null, response);
-//   });
+
   try {
     await sqs.sendMessage({
         QueueUrl: process.env.QUEUE_URL,        

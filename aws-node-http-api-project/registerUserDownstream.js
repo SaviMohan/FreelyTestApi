@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
  
 module.exports.registerUserDownstream = async (event) => {
   console.log(event);
-  //console.log(Buffer.from(event.Records[0].Sns.Message, 'base64').toString());
+  
   const body = JSON.parse(event.Records[0].Sns.Message);
   const dynamoDb = new AWS.DynamoDB.DocumentClient()
   

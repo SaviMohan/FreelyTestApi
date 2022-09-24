@@ -6,10 +6,9 @@ const sns = new AWS.SNS();
  
 module.exports.registerUserUpstream = async (event) => {
   console.log(event);
-  console.log(event.body);
-  //console.log(Buffer.from(event.body, 'base64').toString())
+  
   const body = JSON.parse(event.body)
-  // const dynamoDb = new AWS.DynamoDB.DocumentClient()
+  
   const name = body.name;
   const email = body.email;
   if (!name || !email) {
@@ -18,15 +17,6 @@ module.exports.registerUserUpstream = async (event) => {
         body: JSON.stringify({error: 'Request parameter(s) incorrectly specified. Make sure user name and email are correctly specified.'})
     }
   }
-//   const putParams = {
-//     TableName: process.env.DYNAMODB_USER_TABLE,
-//     Item: {
-//       userId: body.userId,
-//       name: body.name,
-//       email: body.email
-//     }
-//   }
-//   await dynamoDb.put(putParams).promise()
 
   const scanParams = {
     TableName: process.env.DYNAMODB_USER_TABLE,
@@ -48,8 +38,7 @@ module.exports.registerUserUpstream = async (event) => {
     Message: JSON.stringify({
       name: name,
       email: email  
-    }),
-    //TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:registerUserDownstream`,
+    }),    
     TopicArn: `arn:aws:sns:us-east-1:${config.awsAccountId}:registerUserDownstream`,
   };
 
@@ -57,18 +46,9 @@ module.exports.registerUserUpstream = async (event) => {
     statusCode: 200,
     body: JSON.stringify({ message: 'Successfully queued up register user request' }),
   };
-//   sns.publish(params, (error) => {
-//     if (error) {
-//       console.error(error);
-//       callback(null, );
-//     }
-    
-    
-//     callback(null, response);
-//   });
+
   try {
-    const data = await sns.publish(params).promise();
-    // response.messageId = data.MessageId,
+    const data = await sns.publish(params).promise();    
     response.result = 'Success'
   } catch (e) {
     console.log(e.stack)

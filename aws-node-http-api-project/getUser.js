@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
  
 module.exports.getUser = async (event) => {
   console.log(event)
-  //console.log(Buffer.from(event.pathParameters, 'base64').toString())
+  
   const pathParameters = event.pathParameters;
   const email = pathParameters.email;
   if (!email || typeof email != "string") {
@@ -38,16 +38,7 @@ module.exports.getUser = async (event) => {
       
       userId: user.userId,
       name: user.name,
-      email: user.email
-      
-      // total: result.Count,
-      // items: await result.Items.map(user => {
-      //   return {
-      //     userId: user.userId,
-      //     name: user.name,
-      //     email: user.email
-      //     }
-      //   })
+      email: user.email      
     })
   }
 }
