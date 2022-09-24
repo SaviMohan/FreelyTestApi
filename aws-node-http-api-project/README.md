@@ -1,10 +1,19 @@
 ## Usage
 
 ### Deployment
+FIRST, modify the AWS account id in `config.js` to the account you want to use. Note that the app is currently configured to work in `us-east-1` region.
 
 ```
 $ serverless deploy
 ```
+
+### Available endpoints 
+  POST - https://dw6ljxubel.execute-api.us-east-1.amazonaws.com/createMessageBoard                                                                            
+  POST - https://dw6ljxubel.execute-api.us-east-1.amazonaws.com/postMessageToBoard
+  POST - https://dw6ljxubel.execute-api.us-east-1.amazonaws.com/registerUser
+  GET - https://a6veis2j2j.execute-api.us-east-1.amazonaws.com/dev/getUser/{email}
+  GET - https://a6veis2j2j.execute-api.us-east-1.amazonaws.com/dev/listMessageBoards
+
 
 ### Example test commands
 
@@ -26,8 +35,14 @@ curl -X GET https://8r30437r2k.execute-api.us-east-1.amazonaws.com/getUser?email
 
 Invoke-WebRequest -Uri https://8r30437r2k.execute-api.us-east-1.amazonaws.com/registerUser -Method POST -Body @{name='TestGuy';email='TestGuy@gmail.com'}
 
-Invoke-WebRequest -Uri https://8r30437r2k.execute-api.us-east-1.amazonaws.com/getUser -Method GET -Body @{email='TestGuy@gmail.com'}
+Invoke-WebRequest -Uri https://fgf2udd35l.execute-api.us-east-1.amazonaws.com/dev/getUser -Method GET -Body 
 
+
+### Future/Extension Work
+
+- Remove requirement for app to be region locked to `us-east-1`.
+- Add ability to subscribe to new messages topics
+- More advanced messaging, e.g. being able to delete sent messages
 <!--
 title: 'AWS Simple HTTP Endpoint example in NodeJS'
 description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.'

@@ -9,6 +9,7 @@ provider:
   region: us-east-1
   environment:
     DYNAMODB_USER_TABLE: ${self:service}-userTable-${sls:stage}
+    DYNAMODB_MESSAGE_BOARD_TABLE: ${self:service}-messageBoardTable-${sls:stage}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -22,8 +23,44 @@ provider:
       Action:
         - SNS:*
       Resource: "*"
+    # - Effect: Allow
+    #   Action:
+    #     - SQS:*
+    #   Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:PutItem"
+        - "dynamodb:Get*"
+        - "dynamodb:Scan*"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"        
+      Resource: arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-messageBoardTable-${sls:stage}
 
-functions:  
+constructs:
+    msgBoardQueue:
+        type: queue
+        worker:
+            handler: createMessageBoardDownstream.createMessageBoardDownstream
+
+functions:
+  createMessageBoardUpstream:
+    handler: createMessageBoardUpstream.createMessageBoardUpstream
+    environment:
+      QUEUE_URL: ${construct:msgBoardQueue.queueUrl}
+    events:
+      - httpApi:
+          path: /createMessageBoard
+          method: post  
+  postMessageToBoardUpstream:
+    handler: postMessageToBoardUpstream.postMessageToBoardUpstream
+    events:
+      - httpApi:
+          path: /postMessageToBoard
+          method: post
+  postMessageToBoardDownstream:
+    handler: postMessageToBoardDownstream.postMessageToBoardDownstream
+    events:
+      - sns: postMessageToBoardDownstream  
   registerUserUpstream:
     handler: registerUserUpstream.registerUserUpstream
     events:
@@ -40,6 +77,12 @@ functions:
       - http:
           path: /getUser/{email}
           method: get
+  listMessageBoards:
+    handler: listMessageBoards.listMessageBoards
+    events:
+      - http:
+          path: /listMessageBoards
+          method: get
           
 resources:
   Resources:
@@ -54,5 +97,17 @@ resources:
           - AttributeName: userId
             KeyType: HASH
         TableName: ${self:service}-userTable-${sls:stage}
+    messageBoardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: messageBoardId
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: messageBoardId
+            KeyType: HASH
+        TableName: ${self:service}-messageBoardTable-${sls:stage}
 plugins:
   - serverless-offline
+  - serverless-lift
